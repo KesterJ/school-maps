@@ -1,6 +1,7 @@
 ###IMPORTS
 library(dplyr)
 library(readxl)
+library(rgdal)
 
 ##Get GIAS location data
 gias <- "Data/edubasealldata20190908.csv" %>%
@@ -24,4 +25,18 @@ ofsted <- "Data/Management_information_-_schools_-_31_July_2019.xlsx" %>%
 
 #Join
 primaries <- gias %>%
-  left_join(ofsted, by = "URN")
+  left_join(ofsted, by = "URN") %>%
+  mutate(colour = case_when(Ofsted_rating == 1 ~ "green",
+                            Ofsted_rating == 2 ~ "lightgreen",
+                            Ofsted_rating == 3 ~ "red",
+                            TRUE ~ "black"))
+
+prim_coords <- primaries %>%
+  select(Easting, Northing)
+
+primariesSP <- SpatialPointsDataFrame(prim_coords,
+                                      primaries %>% select(-Easting, -Northing),
+                                      proj4string = CRS("+init=epsg:27700")) %>%
+  spTransform(CRS("+init=epsg:4326"))
+
+
