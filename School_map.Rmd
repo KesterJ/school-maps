@@ -1,0 +1,10 @@
+---
+title: "Schools map"
+output: html_document
+---
+
+
+```{r schoolmap}
+primary_map
+```
+
